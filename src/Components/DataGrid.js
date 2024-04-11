@@ -113,37 +113,28 @@ function DataGrid(props) {
   ]);
 
   // Functions for adding, editing and deleting rows
-  const addRow = (row) => {
-    let id = rowData.length + 1;
-    row.id = id;
+  const addRow = useCallback(
+    (row) => {
+      let id = rowData.length + 1;
+      row.id = id;
 
-    setRowData([...rowData, row]);
-  };
+      gridRef.current.api.applyTransaction({ add: [row] });
+    },
+    []
+  );
 
   const editRow = useCallback(
     (p, row) => {
       p.api?.applyTransaction({ update: [row] });
-
-      setRowData(
-        rowData.map((ro, r) => {
-          console.log(ro, row);
-          if (ro.id === p.data.id) {
-            return { ...row };
-          }
-          return { ...ro };
-        })
-      );
     },
-    [rowData]
+    []
   );
 
   const deleteRow = useCallback(
     (p) => {
       p.api?.applyTransaction({ remove: [p.data] });
-
-      setRowData(rowData.filter((row, r) => r !== p.data.id));
     },
-    [rowData]
+    []
   );
 
   const getRowId = useCallback((params) => params.data.id, []);
