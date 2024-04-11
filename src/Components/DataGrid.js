@@ -24,11 +24,7 @@ const editTooltip = (props) => (
   </Tooltip>
 );
 
-function DataGrid(props) {
-  const [showAdd, setShowAdd] = useState(false);
-  const [showEdit, setShowEdit] = useState(false);
-  const [rowParams, setRowParams] = useState({});
-  const [rowData, setRowData] = useState([
+let initialData = [
     {
       id: 1,
       name: "John Doe",
@@ -44,7 +40,13 @@ function DataGrid(props) {
       name: "Mike Johnson",
       age: 35
     }
-  ]);
+  ]
+
+function DataGrid(props) {
+  const [showAdd, setShowAdd] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
+  const [rowParams, setRowParams] = useState({});
+  const [rowData, setRowData] = useState(initialData);
   const gridRef = useRef();
 
   const Buttons = (p) => {
@@ -113,29 +115,31 @@ function DataGrid(props) {
   ]);
 
   // Functions for adding, editing and deleting rows
-  const addRow = useCallback(
-    (row) => {
-      let id = rowData.length + 1;
-      row.id = id;
+  const addRow = useCallback((row) => {
+    let id  = initialData.length>0?initialData[initialData.length-1].id+1:1;
+    initialData = [...initialData,{...row,id}];
 
-      gridRef.current.api.applyTransaction({ add: [row] });
-    },
-    []
-  );
+    setRowData(initialData);
+  }, []);
 
-  const editRow = useCallback(
-    (p, row) => {
-      p.api?.applyTransaction({ update: [row] });
-    },
-    []
-  );
+  const editRow = useCallback((p, row) => {
+    initialData = initialData.map((ro,r)=>{
+        if(row.id===ro.id){
+            return {
+                ...row
+            }
+        }
+        return ro;
+    })
 
-  const deleteRow = useCallback(
-    (p) => {
-      p.api?.applyTransaction({ remove: [p.data] });
-    },
-    []
-  );
+    setRowData(initialData);
+  }, []);
+
+  const deleteRow = useCallback((p) => {
+    initialData = initialData.filter((row,r)=>row.id!==Number(p.node.id))
+
+    setRowData(initialData);
+  }, []);
 
   const getRowId = useCallback((params) => params.data.id, []);
 
@@ -173,6 +177,7 @@ function DataGrid(props) {
           getRowId={getRowId}
           rowData={rowData}
           columnDefs={colDefs}
+          animateRows={true}
         />
       </div>
     </>
