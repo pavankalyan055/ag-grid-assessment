@@ -112,6 +112,7 @@ function DataGrid(props) {
     }
   ]);
 
+  // Functions for adding, editing and deleting rows
   const addRow = (row) => {
     let id = rowData.length + 1;
     row.id = id;
